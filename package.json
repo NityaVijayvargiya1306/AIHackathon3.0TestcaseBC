@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server": "node server.js",
+    "start": "node server.js & npm run dev"
+  }
+}
