@@ -183,10 +183,11 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
       console.log('Messages count:', messages.length);
 
       // DIRECT CALL to Azure OpenAI (bypassing proxy server)
-      const AZURE_ENDPOINT = import.meta.env.AZURE_ENDPOINT;
+    
       const DEPLOYMENT_NAME = 'gpt-5.1-chat';
       const API_VERSION = '2024-08-01-preview';
-      const AZURE_API_KEY = import.meta.env.AZURE_API_KEY; 
+      const AZURE_ENDPOINT = import.meta.env.VITE_AZURE_ENDPOINT;
+      const AZURE_API_KEY = import.meta.env.VITE_AZURE_API_KEY;
 
       const response = await fetch(
         `${AZURE_ENDPOINT}/openai/deployments/${DEPLOYMENT_NAME}/chat/completions?api-version=${API_VERSION}`,
@@ -571,7 +572,7 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
 
             <div className="md:col-span-2">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Functionality 2
+                Functionality
               </label>
               <textarea
                 name="functionality2"
