@@ -153,152 +153,264 @@ CRITICAL FORMATTING RULES:
 IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or markdown formatting.`;
   };
 
+  // const generateTestCases = async (isRefinement = false) => {
+  //   setLoading(true);
+  //   setError('');
+  //   if (!isRefinement) {
+  //     setTestCases([]);
+  //   }
+
+  //   try {
+  //     if (!formData.moduleName || !formData.functionality) {
+  //       throw new Error('Module name and functionality are required');
+  //     }
+
+  //     const userMessage = {
+  //       role: 'user',
+  //       content: buildPrompt()
+  //     };
+
+  //     const messages = [
+  //       {
+  //         role: 'system',
+  //         content: systemPrompt
+  //       },
+  //       ...conversationHistory,
+  //       userMessage
+  //     ];
+
+  //     console.log('🚀 Sending request to Azure...');
+  //     console.log('Messages count:', messages.length);
+
+  //     const response = await fetch('/api/generate', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         messages: messages
+  //       })
+  //     });
+
+  //     console.log('Response status:', response.status);
+
+  //     if (!response.ok) {
+  //       const errorData = await response.json().catch(() => ({}));
+  //       console.error('Error response:', errorData);
+
+  //       if (response.status === 404) {
+  //         throw new Error('Backend server not running. Please start with: npm run server');
+  //       } else if (response.status === 401) {
+  //         throw new Error('Authentication failed. Check Azure API key in server.js');
+  //       } else if (response.status === 429) {
+  //         throw new Error('Rate limit exceeded. Please wait and try again.');
+  //       } else if (response.status === 500) {
+  //         throw new Error(errorData.error?.message || 'Server error. Check server logs.');
+  //       } else {
+  //         throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+  //       }
+  //     }
+
+  //     const data = await response.json();
+  //     console.log('✅ Received response:', data);
+
+  //     // Log token usage
+  //     if (data.usage) {
+  //       console.log('📊 Token Usage:');
+  //       console.log('  - Prompt tokens (input):', data.usage.prompt_tokens);
+  //       console.log('  - Completion tokens (output):', data.usage.completion_tokens);
+  //       console.log('  - Total tokens:', data.usage.total_tokens);
+  //       console.log('  - Prompt tokens details:', data.usage.prompt_tokens_details);
+  //       console.log('  - Completion tokens details:', data.usage.completion_tokens_details);
+  //     }
+
+  //     const content = data.choices?.[0]?.message?.content || '';
+
+  //     if (!content) {
+  //       throw new Error('No response from AI. Please try again.');
+  //     }
+
+  //     console.log('Raw content received:', content.substring(0, 200) + '...');
+
+  //     let parsedTestCases;
+  //     try {
+  //       const cleanContent = content
+  //         .replace(/```json\n?/g, '')
+  //         .replace(/```\n?/g, '')
+  //         .replace(/^[\s\n]*\[/g, '[')
+  //         .replace(/\][\s\n]*$/g, ']')
+  //         .trim();
+
+  //       parsedTestCases = JSON.parse(cleanContent);
+  //       console.log('✅ Successfully parsed test cases:', parsedTestCases.length);
+  //     } catch (parseError) {
+  //       console.error('Parse error:', parseError);
+  //       console.error('Content received:', content);
+  //       throw new Error('Failed to parse AI response. The AI returned invalid JSON.');
+  //     }
+
+  //     if (!Array.isArray(parsedTestCases)) {
+  //       throw new Error('Invalid response format. Expected an array of test cases.');
+  //     }
+
+  //     if (parsedTestCases.length === 0) {
+  //       throw new Error('No test cases generated. Please provide more details.');
+  //     }
+
+  //     const newHistory = [
+  //       ...conversationHistory,
+  //       userMessage,
+  //       {
+  //         role: 'assistant',
+  //         content: JSON.stringify(parsedTestCases, null, 2)
+  //       }
+  //     ];
+  //     setConversationHistory(newHistory);
+
+  //     setTestCases(parsedTestCases);
+  //     setShowFeedback(true);
+  //     setFeedback('');
+
+  //     console.log('✅ Test cases set successfully');
+  //   } catch (err) {
+  //     console.error('❌ Error:', err);
+  //     setError(err.message || 'An error occurred while generating test cases');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  
   const generateTestCases = async (isRefinement = false) => {
-    setLoading(true);
-    setError('');
-    if (!isRefinement) {
-      setTestCases([]);
+  setLoading(true);
+  setError('');
+  if (!isRefinement) {
+    setTestCases([]);
+  }
+
+  try {
+    if (!formData.moduleName || !formData.functionality) {
+      throw new Error('Module name and functionality are required');
     }
 
-    try {
-      if (!formData.moduleName || !formData.functionality) {
-        throw new Error('Module name and functionality are required');
-      }
+    const userMessage = {
+      role: 'user',
+      content: buildPrompt()
+    };
 
-      const userMessage = {
-        role: 'user',
-        content: buildPrompt()
-      };
+    const messages = [
+      {
+        role: 'system',
+        content: systemPrompt
+      },
+      ...conversationHistory,
+      userMessage
+    ];
 
-      const messages = [
-        {
-          role: 'system',
-          content: systemPrompt
-        },
-        ...conversationHistory,
-        userMessage
-      ];
+    console.log('🚀 Sending request to API...');
+    console.log('Messages count:', messages.length);
 
-      console.log('🚀 Sending request to Azure...');
-      console.log('Messages count:', messages.length);
+    // Updated fetch call
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ messages: messages }) // Wrap in messages object
+    });
 
-      // DIRECT CALL to Azure OpenAI (bypassing proxy server)
+    console.log('Response status:', response.status);
 
-      // const DEPLOYMENT_NAME = 'gpt-5.1-chat';
-      // const API_VERSION = '2025-01-01-preview';
-      // const AZURE_ENDPOINT = import.meta.env.VITE_AZURE_ENDPOINT;
-      // const AZURE_API_KEY = import.meta.env.VITE_AZURE_API_KEY;
-
-      // const response = await fetch(
-      //   '/api/generate', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     // 'api-key': AZURE_API_KEY
-      //   },
-      //   body: JSON.stringify({
-      //     messages: messages
-      //   })
-      // }
-      // );
-
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          messages: messages
-        })
-      });
-
-      console.log('Response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Error response:', errorData);
-
-        if (response.status === 404) {
-          throw new Error('Backend server not running. Please start with: npm run server');
-        } else if (response.status === 401) {
-          throw new Error('Authentication failed. Check Azure API key in server.js');
-        } else if (response.status === 429) {
-          throw new Error('Rate limit exceeded. Please wait and try again.');
-        } else if (response.status === 500) {
-          throw new Error(errorData.error?.message || 'Server error. Check server logs.');
-        } else {
-          throw new Error(errorData.error?.message || `API Error: ${response.status}`);
-        }
-      }
-
-      const data = await response.json();
-      console.log('✅ Received response:', data);
-
-      // Log token usage
-      if (data.usage) {
-        console.log('📊 Token Usage:');
-        console.log('  - Prompt tokens (input):', data.usage.prompt_tokens);
-        console.log('  - Completion tokens (output):', data.usage.completion_tokens);
-        console.log('  - Total tokens:', data.usage.total_tokens);
-        console.log('  - Prompt tokens details:', data.usage.prompt_tokens_details);
-        console.log('  - Completion tokens details:', data.usage.completion_tokens_details);
-      }
-
-      const content = data.choices?.[0]?.message?.content || '';
-
-      if (!content) {
-        throw new Error('No response from AI. Please try again.');
-      }
-
-      console.log('Raw content received:', content.substring(0, 200) + '...');
-
-      let parsedTestCases;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Error response:', errorText);
+      
+      let errorData;
       try {
-        const cleanContent = content
-          .replace(/```json\n?/g, '')
-          .replace(/```\n?/g, '')
-          .replace(/^[\s\n]*\[/g, '[')
-          .replace(/\][\s\n]*$/g, ']')
-          .trim();
-
-        parsedTestCases = JSON.parse(cleanContent);
-        console.log('✅ Successfully parsed test cases:', parsedTestCases.length);
-      } catch (parseError) {
-        console.error('Parse error:', parseError);
-        console.error('Content received:', content);
-        throw new Error('Failed to parse AI response. The AI returned invalid JSON.');
+        errorData = JSON.parse(errorText);
+      } catch {
+        errorData = { error: errorText };
       }
 
-      if (!Array.isArray(parsedTestCases)) {
-        throw new Error('Invalid response format. Expected an array of test cases.');
+      if (response.status === 404) {
+        throw new Error('API endpoint not found. Check deployment.');
+      } else if (response.status === 401) {
+        throw new Error('Authentication failed. Check Azure API configuration.');
+      } else if (response.status === 429) {
+        throw new Error('Rate limit exceeded. Please wait and try again.');
+      } else if (response.status === 500) {
+        throw new Error(errorData.error || errorData.details || 'Server error. Check logs in Azure Portal.');
+      } else {
+        throw new Error(errorData.error || `API Error: ${response.status}`);
       }
-
-      if (parsedTestCases.length === 0) {
-        throw new Error('No test cases generated. Please provide more details.');
-      }
-
-      const newHistory = [
-        ...conversationHistory,
-        userMessage,
-        {
-          role: 'assistant',
-          content: JSON.stringify(parsedTestCases, null, 2)
-        }
-      ];
-      setConversationHistory(newHistory);
-
-      setTestCases(parsedTestCases);
-      setShowFeedback(true);
-      setFeedback('');
-
-      console.log('✅ Test cases set successfully');
-    } catch (err) {
-      console.error('❌ Error:', err);
-      setError(err.message || 'An error occurred while generating test cases');
-    } finally {
-      setLoading(false);
     }
-  };
+
+    const data = await response.json();
+    console.log('✅ Received response:', data);
+
+    // Log token usage
+    if (data.usage) {
+      console.log('📊 Token Usage:');
+      console.log('  - Prompt tokens:', data.usage.prompt_tokens);
+      console.log('  - Completion tokens:', data.usage.completion_tokens);
+      console.log('  - Total tokens:', data.usage.total_tokens);
+    }
+
+    const content = data.choices?.[0]?.message?.content || '';
+
+    if (!content) {
+      throw new Error('No response from AI. Please try again.');
+    }
+
+    console.log('Raw content received:', content.substring(0, 200) + '...');
+
+    let parsedTestCases;
+    try {
+      const cleanContent = content
+        .replace(/```json\n?/g, '')
+        .replace(/```\n?/g, '')
+        .replace(/^[\s\n]*\[/g, '[')
+        .replace(/\][\s\n]*$/g, ']')
+        .trim();
+
+      parsedTestCases = JSON.parse(cleanContent);
+      console.log('✅ Successfully parsed test cases:', parsedTestCases.length);
+    } catch (parseError) {
+      console.error('Parse error:', parseError);
+      console.error('Content received:', content);
+      throw new Error('Failed to parse AI response. The AI returned invalid JSON.');
+    }
+
+    if (!Array.isArray(parsedTestCases)) {
+      throw new Error('Invalid response format. Expected an array of test cases.');
+    }
+
+    if (parsedTestCases.length === 0) {
+      throw new Error('No test cases generated. Please provide more details.');
+    }
+
+    const newHistory = [
+      ...conversationHistory,
+      userMessage,
+      {
+        role: 'assistant',
+        content: JSON.stringify(parsedTestCases, null, 2)
+      }
+    ];
+    setConversationHistory(newHistory);
+
+    setTestCases(parsedTestCases);
+    setShowFeedback(true);
+    setFeedback('');
+
+    console.log('✅ Test cases set successfully');
+  } catch (err) {
+    console.error('❌ Error:', err);
+    setError(err.message || 'An error occurred while generating test cases');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const refineTestCases = async () => {
     if (!feedback.trim()) {
