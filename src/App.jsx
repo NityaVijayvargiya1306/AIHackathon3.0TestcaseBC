@@ -16,7 +16,7 @@ export default function App() {
     integrations: '',
     expectedBehavior: ''
   });
-  
+
   const [testCases, setTestCases] = useState([]);
   const [conversationHistory, setConversationHistory] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -183,24 +183,23 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
       console.log('Messages count:', messages.length);
 
       // DIRECT CALL to Azure OpenAI (bypassing proxy server)
-    
+
       const DEPLOYMENT_NAME = 'gpt-5.1-chat';
       const API_VERSION = '2025-01-01-preview';
-      const AZURE_ENDPOINT = import.meta.env.VITE_AZURE_ENDPOINT;
-      const AZURE_API_KEY = import.meta.env.VITE_AZURE_API_KEY;
+      // const AZURE_ENDPOINT = import.meta.env.VITE_AZURE_ENDPOINT;
+      // const AZURE_API_KEY = import.meta.env.VITE_AZURE_API_KEY;
 
       const response = await fetch(
-        `${AZURE_ENDPOINT}/openai/deployments/${DEPLOYMENT_NAME}/chat/completions?api-version=${API_VERSION}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'api-key': AZURE_API_KEY
-          },
-          body: JSON.stringify({
-            messages: messages
-          })
-        }
+        '/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // 'api-key': AZURE_API_KEY
+        },
+        body: JSON.stringify({
+          messages: messages
+        })
+      }
       );
 
       console.log('Response status:', response.status);
@@ -208,7 +207,7 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error('Error response:', errorData);
-        
+
         if (response.status === 404) {
           throw new Error('Backend server not running. Please start with: npm run server');
         } else if (response.status === 401) {
@@ -224,7 +223,7 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
 
       const data = await response.json();
       console.log('✅ Received response:', data);
-      
+
       // Log token usage
       if (data.usage) {
         console.log('📊 Token Usage:');
@@ -234,9 +233,9 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
         console.log('  - Prompt tokens details:', data.usage.prompt_tokens_details);
         console.log('  - Completion tokens details:', data.usage.completion_tokens_details);
       }
-      
+
       const content = data.choices?.[0]?.message?.content || '';
-      
+
       if (!content) {
         throw new Error('No response from AI. Please try again.');
       }
@@ -251,7 +250,7 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
           .replace(/^[\s\n]*\[/g, '[')
           .replace(/\][\s\n]*$/g, ']')
           .trim();
-        
+
         parsedTestCases = JSON.parse(cleanContent);
         console.log('✅ Successfully parsed test cases:', parsedTestCases.length);
       } catch (parseError) {
@@ -281,7 +280,7 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
       setTestCases(parsedTestCases);
       setShowFeedback(true);
       setFeedback('');
-      
+
       console.log('✅ Test cases set successfully');
     } catch (err) {
       console.error('❌ Error:', err);
@@ -321,7 +320,7 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
   const exportToExcel = () => {
     let csvContent = '\uFEFF';
     csvContent += 'Test case ID,Title,Description,Priority,Type,Test data,Expected result\n';
-    
+
     testCases.forEach(tc => {
       const row = [
         tc.testCaseId,
@@ -450,9 +449,9 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
               )}
             </div>
           </div>
-          
+
           <p className="text-gray-600">
-            Generate comprehensive, AI-powered test cases for Microsoft Dynamics 365 Business Central. 
+            Generate comprehensive, AI-powered test cases for Microsoft Dynamics 365 Business Central.
             Refine results with iterative feedback.
           </p>
 
@@ -526,7 +525,7 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
 
         <div className="bg-white rounded-xl shadow-lg p-8 mb-6 border border-gray-100">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Test case requirements</h2>
-          
+
           <div className="grid md:grid-cols-2 gap-6 mb-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -717,7 +716,7 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
           <div className="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
             <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
               <h2 className="text-2xl font-bold text-gray-800">
-                Generated test cases 
+                Generated test cases
                 <span className="ml-3 text-lg font-normal text-gray-600">
                   ({testCases.length} test {testCases.length === 1 ? 'case' : 'cases'})
                 </span>
@@ -742,8 +741,8 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
 
             <div className="space-y-6">
               {testCases.map((testCase, index) => (
-                <div 
-                  key={index} 
+                <div
+                  key={index}
                   className="border-2 border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all bg-gradient-to-br from-white to-gray-50"
                 >
                   <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-200">
@@ -788,8 +787,8 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
                       </h4>
                       <div className="space-y-3">
                         {testCase.testSteps.map((step, i) => (
-                          <div 
-                            key={i} 
+                          <div
+                            key={i}
                             className="bg-white border border-gray-200 p-4 rounded-lg hover:border-indigo-300 transition-all"
                           >
                             <p className="font-semibold text-gray-900 mb-2">
