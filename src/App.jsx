@@ -184,23 +184,33 @@ IMPORTANT: Return ONLY the JSON array. No additional text, explanations, or mark
 
       // DIRECT CALL to Azure OpenAI (bypassing proxy server)
 
-      const DEPLOYMENT_NAME = 'gpt-5.1-chat';
-      const API_VERSION = '2025-01-01-preview';
+      // const DEPLOYMENT_NAME = 'gpt-5.1-chat';
+      // const API_VERSION = '2025-01-01-preview';
       // const AZURE_ENDPOINT = import.meta.env.VITE_AZURE_ENDPOINT;
       // const AZURE_API_KEY = import.meta.env.VITE_AZURE_API_KEY;
 
-      const response = await fetch(
-        '/api/generate', {
+      // const response = await fetch(
+      //   '/api/generate', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     // 'api-key': AZURE_API_KEY
+      //   },
+      //   body: JSON.stringify({
+      //     messages: messages
+      //   })
+      // }
+      // );
+
+      const response = await fetch('/api/generate', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          // 'api-key': AZURE_API_KEY
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           messages: messages
         })
-      }
-      );
+      });
 
       console.log('Response status:', response.status);
 
