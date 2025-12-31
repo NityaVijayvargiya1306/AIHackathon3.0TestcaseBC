@@ -121,12 +121,10 @@ module.exports = async function (context, req) {
 
         context.log(`Processing ${messages.length} messages`);
 
-        // Dynamic import for node-fetch
-        const fetch = (await import('node-fetch')).default;
-        
         const azureUrl = `${AZURE_ENDPOINT}/openai/deployments/${DEPLOYMENT_NAME}/chat/completions?api-version=${API_VERSION}`;
         context.log('Calling Azure OpenAI:', azureUrl.substring(0, 50) + '...');
         
+        // Use global fetch (available in Node 18+)
         const response = await fetch(azureUrl, {
             method: 'POST',
             headers: {
